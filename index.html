@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>রক টপ এআই</title>
+    <!-- পিডব্লিউএ এবং আইকনের জন্য ম্যানিফেস্ট ট্যাগ -->
+    <meta name="theme-color" content="#121214">
+    
+    <!-- জেমিনি এসডিকে লোড করার জন্য স্ক্রিপ্ট -->
+    <script type="importmap">
+      {
+        "imports": {
+          "@google/genai": "https://esm.run/@google/genai"
+        }
+      }
+    </script>
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: #121214; 
+            color: #e1e1e6; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        #header { 
+            background: #1a1a1e; 
+            color: white; 
+            padding: 12px 16px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid #29292e;
+        }
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        /* শিয়ালের অ্যানিমেটেড লোগো স্টাইল */
+        .fox-logo {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #ff5722, #ff9800);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 10px rgba(255, 87, 34, 0.5);
+            animation: pulse-glow 2s infinite alternate;
+        }
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 5px rgba(255, 87, 34, 0.4); transform: scale(1); }
+            100% { box-shadow: 0 0 15px rgba(255, 152, 0, 0.8); transform: scale(1.05); }
+        }
+        #api-section { 
+            padding: 12px 16px; 
+            background: #202024; 
+            border-bottom: 1px solid #29292e; 
+            display: flex; 
+            gap: 8px; 
+            align-items: center; 
+            font-size: 14px; 
+        }
+        #api-input { 
+            flex: 1; 
+            padding: 10px; 
+            background: #121214; 
+            border: 1px solid #323238; 
+            color: white;
+            border-radius: 6px; 
+        }
+        #chat-box { 
+            flex: 1; 
+            padding: 16px; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            background: #121214;
+        }
+        .message { 
+            padding: 12px 16px; 
+            border-radius: 12px; 
+            max-width: 80%; 
+            line-height: 1.5; 
+            word-break: break-word; 
+            font-size: 15px;
+        }
+        .user { 
+            background: #0056b3; 
+            color: white; 
+            align-self: flex-end; 
+            border-bottom-right-radius: 2px;
+        }
+        .ai { 
+            background: #202024; 
+            color: #e1e1e6; 
+            align-self: flex-start; 
+            border-bottom-left-radius: 2px;
+            border: 1px solid #29292e;
+        }
+        #input-area { 
+            display: flex; 
+            padding: 12px 16px; 
+            background: #1a1a1e; 
+            border-top: 1px solid #29292e; 
+        }
+        #user-input { 
+            flex: 1; 
+            padding: 12px; 
+            background: #121214; 
+            border: 1px solid #323238; 
+            color: white;
+            border-radius: 8px; 
+            outline: none;
+            font-size: 15px;
+        }
+        #user-input:focus { border-color: #ff5722; }
+        button { 
+            padding: 10px 18px; 
+            background: #ff5722; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            margin-left: 8px; 
+            cursor: pointer; 
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        button:hover { background: #e64a19; }
+        .btn-danger { background: #dc3545; padding: 6px 12px; font-size: 12px; }
+        .btn-danger:hover { background: #c82333; }
+    </style>
+</head>
+<body>
+
+    <div id="header">
+        <div class="brand-container">
+            <!-- শিয়ালের আইকন (SVG) -->
+            <div class="fox-logo">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m21 16-4 4-3-3"></path>
+                    <path d="M12 2v4"></path>
+                    <path d="m15.5 7.5 2.5-2.5"></path>
+                    <path d="M8.5 7.5 6 5"></path>
+                    <path d="M4 12h4"></path>
+                    <path d="m12 18-3 3-2-2"></path>
+                    <path d="M18 12c0 3.31-2.69 6-6 6s-6-2.69-6-6 2.69-6 6-6 6 2.69 6 6z"></path>
+                </svg>
+            </div>
+            <h3 style="margin:0; font-size: 18px; letter-spacing: 0.5px;">রক টপ এআই</h3>
+        </div>
+        <button class="btn-danger" onclick="changeApiKey()">এপিআই কি পরিবর্তন</button>
+    </div>
+
+    <!-- এপিআই কি ইনপুট সেকশন -->
+    <div id="api-section">
+        <input type="password" id="api-input" placeholder="আপনার Google AI Studio API Key এখানে দিন...">
+        <button onclick="saveApiKey()">সেভ</button>
+    </div>
+
+    <!-- চ্যাট উইন্ডো (মাঝখানে কোনো জেমিনির লোগো বা অংশ নেই) -->
+    <div id="chat-box">
+        <div class="message ai">হ্যালো! আমি <b>রক টপ এআই</b>। ওপরের বক্সে আপনার এপিআই কি (API Key) সেভ করার পর আমার সাথে চ্যাট শুরু করতে পারেন।</div>
+    </div>
+
+    <div id="input-area">
+        <input type="text" id="user-input" placeholder="আপনার বার্তা এখানে লিখুন..." onkeypress="handleKeyPress(event)">
+        <button onclick="sendMessage()">পাঠান</button>
+    </div>
+
+    <script type="module">
+        import { GoogleGenAI } from "@google/genai";
+
+        window.onload = function() {
+            const savedKey = localStorage.getItem('rock_top_ai_key');
+            if (savedKey) {
+                document.getElementById('api-section').style.display = 'none';
+            }
+        };
+
+        window.saveApiKey = function() {
+            const key = document.getElementById('api-input').value.trim();
+            if (!key) {
+                alert('দয়া করে সঠিক এপিআই কি দিন!');
+                return;
+            }
+            localStorage.setItem('rock_top_ai_key', key);
+            document.getElementById('api-section').style.display = 'none';
+            alert('এপিআই কি সফলভাবে সেভ হয়েছে!');
+        };
+
+        window.changeApiKey = function() {
+            localStorage.removeItem('rock_top_ai_key');
+            document.getElementById('api-section').style.display = 'flex';
+            document.getElementById('api-input').value = '';
+        };
+
+        window.handleKeyPress = function(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        };
+
+        window.sendMessage = async function() {
+            const apiKey = localStorage.getItem('rock_top_ai_key');
+            if (!apiKey) {
+                alert('আগে আপনার এপিআই কি (API Key) সেভ করুন!');
+                document.getElementById('api-section').style.display = 'flex';
+                return;
+            }
+
+            const inputField = document.getElementById('user-input');
+            const chatBox = document.getElementById('chat-box');
+            const prompt = inputField.value.trim();
+            if (!prompt) return;
+
+            chatBox.innerHTML += `<div class="message user">${prompt}</div>`;
+            inputField.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            const loadingId = 'loading-' + Date.now();
+            chatBox.innerHTML += `<div class="message ai" id="${loadingId}">টাইপিং হচ্ছে...</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const ai = new GoogleGenAI({ apiKey: apiKey });
+                
+                const response = await ai.models.generateContent({
+                    model: 'gemini-2.5-flash',
+                    contents: prompt,
+                    config: {
+                        systemInstruction: "তোমার নাম রক টপ এআই। তুমি খুব সুন্দর বাংলা ভাষায় বন্ধুসুলভভাবে সব প্রশ্নের উত্তর দেবে।",
+                    }
+                });
+
+                document.getElementById(loadingId).remove();
+                chatBox.innerHTML += `<div class="message ai">${response.text}</div>`;
+            } catch (error) {
+                document.getElementById(loadingId).remove();
+                chatBox.innerHTML += `<div class="message ai">ত্রুটি: আপনার এপিআই কি সঠিক নয় অথবা লিমিট শেষ হয়েছে।</div>`;
+            }
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
